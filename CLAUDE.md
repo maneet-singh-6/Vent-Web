@@ -1,34 +1,29 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Full-stack boilerplate: React + Vite frontend (`client/`), Express + Knex/SQLite backend (`server/`), shared types in `models/`.
 
-@AGENTS.md
+## Where the real code lives
 
----
+- `client/` — React app. Components, hooks, `apis/` (frontend fetch wrappers), routes.
+- `server/` — Express. `routes/` (endpoints), `db/` (Knex connection, queries, migrations, seeds), `auth0.ts` (JWT middleware).
+- `models/` — TypeScript interfaces shared by both sides.
 
-## Using This Boilerplate
+Everything else at the root is tool config. Don't read it unless the task is about that tool.
 
-This is a starter template with Auth0 authentication pre-wired. Before the app will work you must:
+## Config files — skip by default
 
-1. Create an Auth0 Application (Single Page Application) and API in the Auth0 dashboard
-2. Set callback/logout URLs in Auth0 to `http://localhost:5173`
-3. Fill in `domain`, `clientId`, and `audience` in `client/index.tsx` `Auth0Provider`
-4. Fill in `domain` and `audience` in `server/auth0.ts`
+`vite.config.js`, `tsconfig.json`, `tailwind.config.js`, `postcss.config.js`, `.aiexclude` are stock boilerplate. Read one only when the task actually touches it (e.g. the API proxy, a TS compiler error, Tailwind's `content` globs).
 
-**To add a protected route:**
-1. Create `server/routes/<resource>.ts`
-2. Import `checkJwt` from `../auth0.ts`
-3. Add it as middleware on the routes that require authentication: `router.post('/', checkJwt, handler)`
-4. In the handler, use `(req as JwtRequest).auth?.sub` to get the authenticated user's Auth0 ID
-5. Mount in `server/server.ts`
+`package-lock.json` is generated — never read or hand-edit it. `package.json` is worth reading for scripts and dependency versions.
 
-**To access the token on the client:**
-- Use `getAccessTokenSilently({ authorizationParams: { audience } })` from `useAuth0`
-- Pass the token as `Authorization: Bearer <token>` in mutating API requests
+## Commands
 
-## Tutoring Guidelines
+- `npm run dev` — client + server in parallel
+- `npm run build` / `npm start`
+- `npm test` (vitest), `npm run lint`, `npm run format`
+- `npm run knex migrate:latest` / `npm run knex seed:run`
 
-- Follow the `promptkit/workflows/tutor.md` workflow for explanation sessions.
-- Ask questions that move students toward the answer rather than stating it.
-- When a student is stuck on Auth0 setup, refer them to the Auth0 dashboard walkthrough in the jwt-auth README — the setup steps are identical.
-- Do not implement authentication flows on behalf of the student — guide them to locate the right values in their Auth0 dashboard and place them in the right config files.
+## Conventions
+
+- ESM (`"type": "module"`). Prettier: no semicolons, single quotes.
+- New DB table: migration in `server/db/migrations/`, queries in `server/db/`, route in `server/routes/`, type in `models/`.
